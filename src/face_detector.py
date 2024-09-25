@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-from emotion_detector import predict_emotion
+from .emotion_detector import predict_emotion
 
 face_cascade = cv2.CascadeClassifier("models/haarcascade_frontalface_default.xml")
 
