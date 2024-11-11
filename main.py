@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 from src.face_detector import detect_faces
 
+
 def main():
     cap = cv2.VideoCapture(0)
 
@@ -25,7 +26,6 @@ def main():
 
     cap.release()
     cv2.destroyAllWindows()
-
 
 if __name__ == '__main__':
     main()
