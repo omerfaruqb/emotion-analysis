@@ -1,6 +1,6 @@
 # emotion-analysis
 A real-time emotion analysis according to faces
-The data is taken from a [Kaggle Dataset](https://www.kaggle.com/datasets/jonathanoheix/face-expression-recognition-dataset) dataset.
+The data is taken from a [Kaggle dataset](https://www.kaggle.com/datasets/jonathanoheix/face-expression-recognition-dataset).
 
 ## Installation
 ```bash
