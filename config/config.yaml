@@ -2,7 +2,7 @@ model:
   name: "resnet18"
   num_classes: 7
   input_size: [100, 100]
-  weights_path: "models/resnet18_v2.onnx"
+  weights_path: "models/resnet18.onnx"
 
 data:
   mean: [0.485, 0.456, 0.406]
