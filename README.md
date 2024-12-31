@@ -1,29 +1,6 @@
-# Real-time Emotion Analysis
-
-A real-time facial emotion detection system using PyTorch and OpenCV. The system can detect and classify seven different emotions: Surprise, Fear, Disgust, Happy, Sad, Angry, and Neutral.
-
-## Features
-
-- Real-time emotion detection from webcam feed
-- Support for 7 different emotions
-- Configurable parameters via YAML config
-- Logging system for debugging and monitoring
-- Pre-trained ResNet18 model converted to ONNX for efficient inference
-
-## Project Structure
-
-```
-emotion-analysis/
-├── config/              # Configuration files
-├── data/               # Dataset and processed data
-├── models/             # Trained models and weights
-├── notebooks/          # Jupyter notebooks for experiments
-├── src/               # Source code
-│   ├── models/        # Model implementations
-│   ├── utils/         # Utility functions
-│   └── data/          # Data processing scripts
-└── tests/             # Unit tests
-```
+# emotion-analysis
+A real-time emotion analysis according to faces
+The data is taken from a [Kaggle Dataset](https://www.kaggle.com/datasets/jonathanoheix/face-expression-recognition-dataset) dataset.
 
 ## Installation
 
