@@ -46,18 +46,30 @@ if detection_mode == "Upload Image":
 elif detection_mode == "Take Photo":
     st.write("Take Photo Mode")
     
+    # Check if running on cloud
+    is_cloud = platform.system().lower() == "linux" and "streamlit.io" in str(st.runtime.get_instance())
+    
     # Initialize camera button and placeholder
     camera_placeholder = st.empty()
-    take_photo = st.button("Take Photo")
     
-    if take_photo:
-        try:
-            cap = cv2.VideoCapture(0)
-            if not cap.isOpened():
-                st.error("❌ Could not access webcam. Please check your permissions.")
-            else:
-                ret, frame = cap.read()
-                if ret:
+    if is_cloud:
+        st.warning("⚠️ Direct webcam access is not available in cloud environment.")
+        st.info("Please provide a stream URL (e.g., IP camera or video stream)")
+        stream_url = st.text_input("Stream URL")
+        take_photo = st.button("Capture from Stream")
+        
+        if take_photo and stream_url:
+            try:
+                import requests
+                from PIL import Image
+                from io import BytesIO
+                
+                response = requests.get(stream_url)
+                if response.status_code == 200:
+                    # Convert stream data to image
+                    image = Image.open(BytesIO(response.content))
+                    frame = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+                    
                     # Process frame
                     processed_frame = detector.process_image(frame)
                     # Convert BGR to RGB
@@ -65,12 +77,31 @@ elif detection_mode == "Take Photo":
                     # Display frame
                     camera_placeholder.image(rgb_frame, caption="Captured Photo")
                 else:
-                    st.error("❌ Failed to capture photo")
-                cap.release()
-        except Exception as e:
-            st.error(f"❌ Error capturing photo: {str(e)}")
-            if platform.system().lower() == "linux":
-                st.info("💡 If you're running this app on a cloud platform, try using the 'Upload Image' mode instead.")
+                    st.error("❌ Could not access the stream URL")
+            except Exception as e:
+                st.error(f"❌ Error accessing stream: {str(e)}")
+    else:
+        take_photo = st.button("Take Photo")
+        
+        if take_photo:
+            try:
+                cap = cv2.VideoCapture(0)
+                if not cap.isOpened():
+                    st.error("❌ Could not access webcam. Please check your permissions.")
+                else:
+                    ret, frame = cap.read()
+                    if ret:
+                        # Process frame
+                        processed_frame = detector.process_image(frame)
+                        # Convert BGR to RGB
+                        rgb_frame = cv2.cvtColor(processed_frame, cv2.COLOR_BGR2RGB)
+                        # Display frame
+                        camera_placeholder.image(rgb_frame, caption="Captured Photo")
+                    else:
+                        st.error("❌ Failed to capture photo")
+                    cap.release()
+            except Exception as e:
+                st.error(f"❌ Error capturing photo: {str(e)}")
 
 else:
     # Webcam
