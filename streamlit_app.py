@@ -49,16 +49,23 @@ elif detection_mode == "Take Photo":
     # Check if running on cloud
     is_cloud = platform.system().lower() == "linux" and "streamlit.io" in str(st.runtime.get_instance())
     
-    # Initialize camera button and placeholder
-    camera_placeholder = st.empty()
+    # Initialize camera placeholders
+    preview_placeholder = st.empty()
+    captured_placeholder = st.empty()
+    
+    col1, col2 = st.columns(2)
     
     if is_cloud:
         st.warning("⚠️ Direct webcam access is not available in cloud environment.")
         st.info("Please provide a stream URL (e.g., IP camera or video stream)")
         stream_url = st.text_input("Stream URL")
-        take_photo = st.button("Capture from Stream")
         
-        if take_photo and stream_url:
+        with col1:
+            preview = st.button("Preview Stream")
+        with col2:
+            take_photo = st.button("Capture Photo")
+        
+        if preview and stream_url:
             try:
                 import requests
                 from PIL import Image
@@ -69,21 +76,34 @@ elif detection_mode == "Take Photo":
                     # Convert stream data to image
                     image = Image.open(BytesIO(response.content))
                     frame = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
-                    
-                    # Process frame
-                    processed_frame = detector.process_image(frame)
-                    # Convert BGR to RGB
-                    rgb_frame = cv2.cvtColor(processed_frame, cv2.COLOR_BGR2RGB)
-                    # Display frame
-                    camera_placeholder.image(rgb_frame, caption="Captured Photo")
+                    # Convert BGR to RGB for preview
+                    rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                    # Display preview
+                    preview_placeholder.image(rgb_frame, caption="Stream Preview")
+                    st.session_state['preview_frame'] = frame
                 else:
                     st.error("❌ Could not access the stream URL")
             except Exception as e:
                 st.error(f"❌ Error accessing stream: {str(e)}")
-    else:
-        take_photo = st.button("Take Photo")
         
-        if take_photo:
+        if take_photo and stream_url:
+            if 'preview_frame' in st.session_state:
+                frame = st.session_state['preview_frame']
+                # Process frame
+                processed_frame = detector.process_image(frame)
+                # Convert BGR to RGB
+                rgb_frame = cv2.cvtColor(processed_frame, cv2.COLOR_BGR2RGB)
+                # Display captured photo
+                captured_placeholder.image(rgb_frame, caption="Captured Photo with Emotion Detection")
+            else:
+                st.warning("Please preview the stream first before capturing")
+    else:
+        with col1:
+            preview = st.button("Preview Camera")
+        with col2:
+            take_photo = st.button("Take Photo")
+        
+        if preview:
             try:
                 cap = cv2.VideoCapture(0)
                 if not cap.isOpened():
@@ -91,17 +111,28 @@ elif detection_mode == "Take Photo":
                 else:
                     ret, frame = cap.read()
                     if ret:
-                        # Process frame
-                        processed_frame = detector.process_image(frame)
-                        # Convert BGR to RGB
-                        rgb_frame = cv2.cvtColor(processed_frame, cv2.COLOR_BGR2RGB)
-                        # Display frame
-                        camera_placeholder.image(rgb_frame, caption="Captured Photo")
+                        # Convert BGR to RGB for preview
+                        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                        # Display preview
+                        preview_placeholder.image(rgb_frame, caption="Camera Preview")
+                        st.session_state['preview_frame'] = frame
                     else:
-                        st.error("❌ Failed to capture photo")
+                        st.error("❌ Failed to get preview from camera")
                     cap.release()
             except Exception as e:
-                st.error(f"❌ Error capturing photo: {str(e)}")
+                st.error(f"❌ Error accessing camera: {str(e)}")
+        
+        if take_photo:
+            if 'preview_frame' in st.session_state:
+                frame = st.session_state['preview_frame']
+                # Process frame
+                processed_frame = detector.process_image(frame)
+                # Convert BGR to RGB
+                rgb_frame = cv2.cvtColor(processed_frame, cv2.COLOR_BGR2RGB)
+                # Display captured photo
+                captured_placeholder.image(rgb_frame, caption="Captured Photo with Emotion Detection")
+            else:
+                st.warning("Please preview the camera first before taking a photo")
 
 else:
     # Webcam
