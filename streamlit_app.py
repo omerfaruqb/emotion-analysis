@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 from src.models.emotion_detector import EmotionDetector
 from pathlib import Path
+import platform
 import tempfile
 
 # Page config
@@ -45,28 +46,44 @@ if detection_mode == "Upload Image":
 else:
     # Webcam
     st.write("Webcam Mode")
+    
+    # Check if running on cloud
+    is_cloud = platform.system().lower() == "linux" and "streamlit.io" in str(st.runtime.get_instance())
+    
+    if is_cloud:
+        st.warning("⚠️ Webcam access might be limited when running on cloud platforms. For best experience, please run the app locally or use the 'Upload Image' option.")
+    
     run = st.checkbox("Start Webcam")
     FRAME_WINDOW = st.image([])
     
     if run:
-        cap = cv2.VideoCapture(0)
-        
-        while run:
-            ret, frame = cap.read()
-            if not ret:
-                st.error("Failed to access webcam")
-                break
+        try:
+            cap = cv2.VideoCapture(0)
+            if not cap.isOpened():
+                st.error("❌ Could not access webcam. Please check your permissions or try using 'Upload Image' mode instead.")
+                run = False
+            else:
+                while run:
+                    ret, frame = cap.read()
+                    if not ret:
+                        st.error("❌ Failed to get frame from webcam")
+                        break
+                    
+                    # Process frame
+                    try:
+                        processed_frame = detector.process_image(frame)
+                        # Convert BGR to RGB
+                        rgb_frame = cv2.cvtColor(processed_frame, cv2.COLOR_BGR2RGB)
+                        # Display frame
+                        FRAME_WINDOW.image(rgb_frame)
+                    except Exception as e:
+                        st.error(f"❌ Error processing frame: {str(e)}")
+                        break
                 
-            # Process frame
-            processed_frame = detector.process_image(frame)
-            
-            # Convert BGR to RGB
-            rgb_frame = cv2.cvtColor(processed_frame, cv2.COLOR_BGR2RGB)
-            
-            # Display frame
-            FRAME_WINDOW.image(rgb_frame)
-        
-        cap.release()
+                cap.release()
+        except Exception as e:
+            st.error(f"❌ Error initializing webcam: {str(e)}")
+            st.info("💡 If you're running this app on a cloud platform, try using the 'Upload Image' mode instead.")
 
 # Add information about the project
 st.markdown("""
