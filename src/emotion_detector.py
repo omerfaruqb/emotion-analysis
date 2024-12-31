@@ -3,7 +3,7 @@ import numpy as np
 import onnx
 import onnxruntime as rt
 
-MODEL_PATH = "models/resnet18_v2.onnx"
+MODEL_PATH = "models/resnet18.onnx"
 
 model = onnx.load(MODEL_PATH)
 onnx.checker.check_model(model)

@@ -1,0 +1,24 @@
+model:
+  name: "resnet18"
+  num_classes: 7
+  input_size: [100, 100]
+  weights_path: "models/resnet18_v2.onnx"
+
+data:
+  mean: [0.485, 0.456, 0.406]
+  std: [0.229, 0.224, 0.225]
+  class_weights: [1.0, 1.2, 1.5, 1.0, 1.3, 1.0, 1.0]
+
+emotion_labels:
+  0: ["Surprised", [255, 255, 0]]
+  1: ["Fear", [255, 255, 255]]
+  2: ["Disgust", [50, 50, 50]]
+  3: ["Happy", [0, 255, 0]]
+  4: ["Sad", [139, 0, 0]]
+  5: ["Angry", [0, 0, 255]]
+  6: ["Neutral", [128, 128, 128]]
+
+inference:
+  confidence_threshold: 0.5
+  face_detection_scale_factor: 1.1
+  face_detection_min_neighbors: 5 
