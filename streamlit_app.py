@@ -26,7 +26,7 @@ detector = load_detector()
 
 # Sidebar
 st.sidebar.title("Options")
-detection_mode = st.sidebar.radio("Choose Detection Mode", ["Upload Image", "Webcam"])
+detection_mode = st.sidebar.radio("Choose Detection Mode", ["Upload Image", "Take Photo", "Webcam"])
 
 if detection_mode == "Upload Image":
     # Image upload
@@ -42,6 +42,35 @@ if detection_mode == "Upload Image":
         
         # Display results
         st.image(cv2.cvtColor(processed_image, cv2.COLOR_BGR2RGB), caption="Processed Image")
+
+elif detection_mode == "Take Photo":
+    st.write("Take Photo Mode")
+    
+    # Initialize camera button and placeholder
+    camera_placeholder = st.empty()
+    take_photo = st.button("Take Photo")
+    
+    if take_photo:
+        try:
+            cap = cv2.VideoCapture(0)
+            if not cap.isOpened():
+                st.error("❌ Could not access webcam. Please check your permissions.")
+            else:
+                ret, frame = cap.read()
+                if ret:
+                    # Process frame
+                    processed_frame = detector.process_image(frame)
+                    # Convert BGR to RGB
+                    rgb_frame = cv2.cvtColor(processed_frame, cv2.COLOR_BGR2RGB)
+                    # Display frame
+                    camera_placeholder.image(rgb_frame, caption="Captured Photo")
+                else:
+                    st.error("❌ Failed to capture photo")
+                cap.release()
+        except Exception as e:
+            st.error(f"❌ Error capturing photo: {str(e)}")
+            if platform.system().lower() == "linux":
+                st.info("💡 If you're running this app on a cloud platform, try using the 'Upload Image' mode instead.")
 
 else:
     # Webcam
