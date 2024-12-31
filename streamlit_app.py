@@ -86,4 +86,4 @@ The system uses a deep learning model (ResNet18) trained on the RAF-DB dataset t
 
 # GitHub link
 st.sidebar.markdown("---")
-st.sidebar.markdown("Created by [Your Name](https://github.com/yourusername)") 
+st.sidebar.markdown("Created by [Faruq Bayram](https://github.com/omerfaruqb)") 
